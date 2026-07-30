@@ -1,23 +1,17 @@
 import express from "express";
+import gamesRouter from "./routes/games.js";
 
 const app = express();
-
 const PORT = 3000;
 
-app.get("/", (req, res) => {
-  res.send("Welcome to GameVault!");
-});
+app.use(express.json());
 
-app.get("/games", (req, res) => {
-    console.log(req.method);
-    console.log(req.url);
-
-    res.send("Games");
-});
+app.use("/games", gamesRouter);
 
 app.get("/about", (req, res) => {
-  res.send("This is my GameVault API.");
+	res.send("This is my GameVault API.");
 });
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+	console.log(`Server running on port ${PORT}`);
 });
