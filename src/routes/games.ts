@@ -18,7 +18,7 @@ type ValidationResult =
         error: string;
     };
 
-function validateTitle(title: unknown): ValidationResult  {
+function validateTitle(title: unknown): ValidationResult {
     if (typeof title !== "string") {
         return {
             success: false,
@@ -43,24 +43,82 @@ function validateTitle(title: unknown): ValidationResult  {
 
 router.get("/", (req, res) => {
     const search = req.query.search;
+    const sort = req.query.sort;
+    const order = req.query.order;
 
-    if (search === undefined) {
-        return res.status(200).json(games);
-    }
-
-    if (typeof search !== "string") {
+    // Validate query parameters
+    if (search !== undefined && typeof search !== "string") {
         return res.status(400).json({
             message: "Search must be a string"
         });
     }
 
-    const sanitizedSearch = search.trim().toLowerCase();
+    if (sort !== undefined && typeof sort !== "string") {
+        return res.status(400).json({
+            message: "Sort must be a string"
+        });
+    }
 
-    const filteredGames = games.filter((game) =>
-        game.title.toLowerCase().includes(sanitizedSearch)
-    );
+    if (order !== undefined && typeof order !== "string") {
+        return res.status(400).json({
+            message: "Order must be a string"
+        });
+    }
 
-    return res.status(200).json(filteredGames);
+    // Validate sort and order parameters
+    if (order !== undefined && sort === undefined) {
+        return res.status(400).json({
+            message: "The 'order' parameter requires a 'sort' parameter"
+        });
+    }
+
+    if (sort !== undefined && sort !== "title" && sort !== "id") {
+        return res.status(400).json({
+            message: "Sort must be either 'title' or 'id'"
+        });
+    }
+
+    if (order !== undefined && order !== "asc" && order !== "desc") {
+        return res.status(400).json({
+            message: "Order must be either 'asc' or 'desc'"
+        });
+    }
+
+    let result = [...games];
+
+    if (search !== undefined) {
+        const sanitizedSearch = search.trim().toLowerCase();
+
+        result = result.filter((game) =>
+            game.title.toLowerCase().includes(sanitizedSearch)
+        );
+    }
+
+    if (sort !== undefined) {
+        const sortOrder = order ?? "asc";
+
+        if (sort === "title") {
+            result.sort((a, b) => {
+                if (sortOrder === "asc") {
+                    return a.title.localeCompare(b.title);
+                }
+
+                return b.title.localeCompare(a.title);
+            });
+        }
+
+        if (sort === "id") {
+            result.sort((a, b) => {
+                if (sortOrder === "asc") {
+                    return a.id - b.id;
+                }
+
+                return b.id - a.id;
+            });
+        }
+    }
+
+    return res.status(200).json(result);
 });
 
 router.get("/:id", (req, res) => {
