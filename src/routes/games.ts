@@ -1,12 +1,9 @@
+import type { Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 
 const router = Router();
-
-const games = [
-    { id: 1, title: "Elden Ring" },
-    { id: 2, title: "Hades" },
-    { id: 3, title: "Cyberpunk 2077" }
-];
+const prisma = new PrismaClient();
 
 type ValidationResult =
     | {
@@ -41,7 +38,7 @@ function validateTitle(title: unknown): ValidationResult {
     };
 }
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
     const search = req.query.search;
     const sort = req.query.sort;
     const order = req.query.order;
@@ -83,47 +80,42 @@ router.get("/", (req, res) => {
             message: "Order must be either 'asc' or 'desc'"
         });
     }
-
-    let result = [...games];
+    
+    const query: Prisma.GameFindManyArgs = {};
 
     if (search !== undefined) {
-        const sanitizedSearch = search.trim().toLowerCase();
-
-        result = result.filter((game) =>
-            game.title.toLowerCase().includes(sanitizedSearch)
-        );
+        query.where = {
+            title: {
+                contains: search.trim(),
+                mode: "insensitive"
+            }
+        };
     }
 
     if (sort !== undefined) {
-        const sortOrder = order ?? "asc";
-
-        if (sort === "title") {
-            result.sort((a, b) => {
-                if (sortOrder === "asc") {
-                    return a.title.localeCompare(b.title);
-                }
-
-                return b.title.localeCompare(a.title);
-            });
-        }
-
-        if (sort === "id") {
-            result.sort((a, b) => {
-                if (sortOrder === "asc") {
-                    return a.id - b.id;
-                }
-
-                return b.id - a.id;
-            });
-        }
+        query.orderBy = {
+            [sort]: order ?? "asc"
+        };
     }
 
-    return res.status(200).json(result);
+    const games = await prisma.game.findMany(query);
+
+    return res.status(200).json(games);
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
     const id = Number(req.params.id);
-    const game = games.find((g) => g.id === id);
+    if (Number.isNaN(id)) {
+        return res.status(400).json({
+            message: "Invalid game ID"
+        });
+    }
+
+    const game = await prisma.game.findUnique({
+        where: {
+            id
+        }
+    });
 
     if (!game) {
         return res.status(404).json({
@@ -134,7 +126,7 @@ router.get("/:id", (req, res) => {
     return res.json(game);
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     const title = req.body.title;
 
     const validationResult = validateTitle(title);
@@ -145,16 +137,16 @@ router.post("/", (req, res) => {
         });
     }
 
-    const newId = games.length > 0 ? Math.max(...games.map((g) => g.id)) + 1 : 1;
-
-    const newGame = { id: newId, title: validationResult.value };
-
-    games.push(newGame);
+    const newGame = await prisma.game.create({
+        data: {
+            title: validationResult.value
+        }
+    });
 
     return res.status(201).json(newGame);
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
@@ -163,15 +155,8 @@ router.put("/:id", (req, res) => {
         });
     }
 
-    const game = games.find((game) => game.id === id);
-
-    if (!game) {
-        return res.status(404).json({
-            message: "Game not found"
-        });
-    }
-
     const title = req.body.title;
+
 
     const validationResult = validateTitle(title);
 
@@ -181,13 +166,30 @@ router.put("/:id", (req, res) => {
         });
     }
 
-    game.title = validationResult.value;
+    const existingGame = await prisma.game.findUnique({
+        where: { id }
+    });
 
-    return res.status(200).json(game);
+    if (!existingGame) {
+        return res.status(404).json({
+            message: "Game not found"
+        });
+    }
+
+    const updatedGame = await prisma.game.update({
+        where: {
+            id
+        },
+        data: {
+            title: validationResult.value
+        }
+    });
+
+    return res.status(200).json(updatedGame);
 
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
@@ -196,15 +198,21 @@ router.delete("/:id", (req, res) => {
         });
     }
 
-    const gameIndex = games.findIndex((game) => game.id === id);
+     const existingGame = await prisma.game.findUnique({
+        where: { id }
+    });
 
-    if (gameIndex === -1) {
+    if (!existingGame) {
         return res.status(404).json({
             message: "Game not found"
         });
     }
 
-    games.splice(gameIndex, 1);
+    await prisma.game.delete({
+        where: {
+            id
+        }
+    });
 
     return res.status(204).send();
 });
