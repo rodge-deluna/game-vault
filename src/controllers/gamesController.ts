@@ -92,12 +92,6 @@ export async function getGameById(req: Request, res: Response) {
 
     const game = await gamesService.getGameById(id);
 
-    if (!game) {
-        return res.status(404).json({
-            message: "Game not found"
-        });
-    }
-
     return res.status(200).json(game);
 }
 
@@ -135,14 +129,6 @@ export async function updateGame(req: Request, res: Response) {
         });
     }
 
-    const existingGame = await gamesService.getGameById(id);
-
-    if (!existingGame) {
-        return res.status(404).json({
-            message: "Game not found"
-        });
-    }
-
     const updatedGame = await gamesService.updateGame(id, validationResult.value);
 
     return res.status(200).json(updatedGame);
@@ -154,14 +140,6 @@ export async function deleteGame(req: Request, res: Response) {
     if (Number.isNaN(id)) {
         return res.status(400).json({
             message: "Invalid game ID"
-        });
-    }
-
-    const existingGame = await gamesService.getGameById(id);
-
-    if (!existingGame) {
-        return res.status(404).json({
-            message: "Game not found"
         });
     }
 

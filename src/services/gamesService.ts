@@ -1,12 +1,17 @@
 import type { Prisma } from "@prisma/client";
 import prisma from "../db/prisma.js";
+import { GameNotFoundError } from "../errors/GameNotFoundError.js";
 
 export async function getGameById(id: number) {
-    return prisma.game.findUnique({
-        where: {
-            id
-        }
+    const game = await prisma.game.findUnique({
+        where: { id }
     });
+
+    if (!game) {
+        throw new GameNotFoundError();
+    }
+
+    return game;
 }
 
 export async function createGame(title: string) {
@@ -39,17 +44,17 @@ export async function getGames(search?: string, sort?: string, order?: string) {
 }
 
 export async function updateGame(id: number, title: string) {
+    await getGameById(id);
+
     return prisma.game.update({
-        where: {
-            id
-        },
-        data: {
-            title
-        }
+        where: { id },
+        data: { title }
     });
 }
 
 export async function deleteGame(id: number) {
+    await getGameById(id);
+
     return prisma.game.delete({
         where: {
             id
