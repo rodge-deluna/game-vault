@@ -1,6 +1,5 @@
-import type { Prisma } from "@prisma/client";
 import type { Request, Response } from "express";
-import prisma from "../db/prisma.js";
+import * as gamesService from "../services/gamesService.js";
 
 type ValidationResult =
     | {
@@ -78,24 +77,7 @@ export async function getGames(req: Request, res: Response) {
         });
     }
 
-    const query: Prisma.GameFindManyArgs = {};
-
-    if (search !== undefined) {
-        query.where = {
-            title: {
-                contains: search.trim(),
-                mode: "insensitive"
-            }
-        };
-    }
-
-    if (sort !== undefined) {
-        query.orderBy = {
-            [sort]: order ?? "asc"
-        };
-    }
-
-    const games = await prisma.game.findMany(query);
+    const games = await gamesService.getGames(search, sort, order);
 
     return res.status(200).json(games);
 }
@@ -108,11 +90,7 @@ export async function getGameById(req: Request, res: Response) {
         });
     }
 
-    const game = await prisma.game.findUnique({
-        where: {
-            id
-        }
-    });
+    const game = await gamesService.getGameById(id);
 
     if (!game) {
         return res.status(404).json({
@@ -134,11 +112,7 @@ export async function createGame(req: Request, res: Response) {
         });
     }
 
-    const newGame = await prisma.game.create({
-        data: {
-            title: validationResult.value
-        }
-    });
+    const newGame = await gamesService.createGame(validationResult.value);
 
     return res.status(201).json(newGame);
 }
@@ -153,8 +127,6 @@ export async function updateGame(req: Request, res: Response) {
     }
 
     const title = req.body.title;
-
-
     const validationResult = validateTitle(title);
 
     if (!validationResult.success) {
@@ -163,9 +135,7 @@ export async function updateGame(req: Request, res: Response) {
         });
     }
 
-    const existingGame = await prisma.game.findUnique({
-        where: { id }
-    });
+    const existingGame = await gamesService.getGameById(id);
 
     if (!existingGame) {
         return res.status(404).json({
@@ -173,14 +143,7 @@ export async function updateGame(req: Request, res: Response) {
         });
     }
 
-    const updatedGame = await prisma.game.update({
-        where: {
-            id
-        },
-        data: {
-            title: validationResult.value
-        }
-    });
+    const updatedGame = await gamesService.updateGame(id, validationResult.value);
 
     return res.status(200).json(updatedGame);
 }
@@ -194,9 +157,7 @@ export async function deleteGame(req: Request, res: Response) {
         });
     }
 
-    const existingGame = await prisma.game.findUnique({
-        where: { id }
-    });
+    const existingGame = await gamesService.getGameById(id);
 
     if (!existingGame) {
         return res.status(404).json({
@@ -204,11 +165,7 @@ export async function deleteGame(req: Request, res: Response) {
         });
     }
 
-    await prisma.game.delete({
-        where: {
-            id
-        }
-    });
+    await gamesService.deleteGame(id);
 
     return res.status(204).send();
 }
