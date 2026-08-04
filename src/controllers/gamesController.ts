@@ -1,85 +1,13 @@
 import type { Request, Response } from "express";
 import * as gamesService from "../services/gamesService.js";
-
-type ValidationResult =
-    | {
-        success: true;
-        value: string;
-    }
-    | {
-        success: false;
-        error: string;
-    };
-
-function validateTitle(title: unknown): ValidationResult {
-    if (typeof title !== "string") {
-        return {
-            success: false,
-            error: "Title must be a string"
-        };
-    }
-
-    const sanitizedTitle = title.trim();
-
-    if (sanitizedTitle.length === 0) {
-        return {
-            success: false,
-            error: "Title cannot be empty"
-        };
-    }
-
-    return {
-        success: true,
-        value: sanitizedTitle
-    };
-}
+import type { GetGamesQuery } from "../validators/gameValidator.js";
 
 export async function getGames(req: Request, res: Response) {
-    const search = req.query.search;
-    const sort = req.query.sort;
-    const order = req.query.order;
+    const query = res.locals.validatedQuery as GetGamesQuery;
 
-    // Validate query parameters
-    if (search !== undefined && typeof search !== "string") {
-        return res.status(400).json({
-            message: "Search must be a string"
-        });
-    }
+    const result = await gamesService.getGames(query);
 
-    if (sort !== undefined && typeof sort !== "string") {
-        return res.status(400).json({
-            message: "Sort must be a string"
-        });
-    }
-
-    if (order !== undefined && typeof order !== "string") {
-        return res.status(400).json({
-            message: "Order must be a string"
-        });
-    }
-
-    // Validate sort and order parameters
-    if (order !== undefined && sort === undefined) {
-        return res.status(400).json({
-            message: "The 'order' parameter requires a 'sort' parameter"
-        });
-    }
-
-    if (sort !== undefined && sort !== "title" && sort !== "id") {
-        return res.status(400).json({
-            message: "Sort must be either 'title' or 'id'"
-        });
-    }
-
-    if (order !== undefined && order !== "asc" && order !== "desc") {
-        return res.status(400).json({
-            message: "Order must be either 'asc' or 'desc'"
-        });
-    }
-
-    const games = await gamesService.getGames(search, sort, order);
-
-    return res.status(200).json(games);
+    return res.status(200).json(result);
 }
 
 export async function getGameById(req: Request, res: Response) {
