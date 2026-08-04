@@ -38,7 +38,7 @@ export async function updateGame(req: Request, res: Response) {
         });
     }
 
-    const updatedGame = await gamesService.updateGame(id, req.body.title);
+    const updatedGame = await gamesService.updateGame(id, req.body);
 
     return res.status(200).json(updatedGame);
 }

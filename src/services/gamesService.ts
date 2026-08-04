@@ -16,11 +16,9 @@ export async function getGameById(id: number) {
     return game;
 }
 
-export async function createGame({ title }: CreateGameInput) {
+export async function createGame(data: CreateGameInput) {
     return prisma.game.create({
-        data: {
-            title
-        }
+        data
     });
 }
 
@@ -54,12 +52,9 @@ export async function getGames({
 
     const games = await prisma.game.findMany(query);
 
-    const total =
-        query.where !== undefined
-            ? await prisma.game.count({
-                where: query.where
-            })
-            : await prisma.game.count();
+    const total = await prisma.game.count({
+        where: query.where
+    });
 
     return {
         data: games,
@@ -72,12 +67,12 @@ export async function getGames({
     };
 }
 
-export async function updateGame(id: number, title: string) {
+export async function updateGame(id: number, data: CreateGameInput) {
     await getGameById(id);
 
     return prisma.game.update({
         where: { id },
-        data: { title }
+        data
     });
 }
 

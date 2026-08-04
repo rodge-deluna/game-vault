@@ -4,7 +4,8 @@ export const createGameSchema = z.object({
     title: z
         .string()
         .trim()
-        .min(1, "Title is required")
+        .min(1, "Title is required"),
+    genre: z.string().trim().min(1, "Genre cannot be empty").optional(),
 });
 
 export const getGamesQuerySchema = z
