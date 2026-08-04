@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import prisma from "../db/prisma.js";
 import { GameNotFoundError } from "../errors/GameNotFoundError.js";
+import type { CreateGameInput } from "../validators/gameValidator.js";
 
 export async function getGameById(id: number) {
     const game = await prisma.game.findUnique({
@@ -14,7 +15,7 @@ export async function getGameById(id: number) {
     return game;
 }
 
-export async function createGame(title: string) {
+export async function createGame({ title }: CreateGameInput) {
     return prisma.game.create({
         data: {
             title

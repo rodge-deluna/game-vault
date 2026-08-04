@@ -96,17 +96,7 @@ export async function getGameById(req: Request, res: Response) {
 }
 
 export async function createGame(req: Request, res: Response) {
-    const title = req.body.title;
-
-    const validationResult = validateTitle(title);
-
-    if (!validationResult.success) {
-        return res.status(400).json({
-            message: validationResult.error
-        });
-    }
-
-    const newGame = await gamesService.createGame(validationResult.value);
+    const newGame = await gamesService.createGame(req.body);
 
     return res.status(201).json(newGame);
 }
@@ -120,16 +110,7 @@ export async function updateGame(req: Request, res: Response) {
         });
     }
 
-    const title = req.body.title;
-    const validationResult = validateTitle(title);
-
-    if (!validationResult.success) {
-        return res.status(400).json({
-            message: validationResult.error
-        });
-    }
-
-    const updatedGame = await gamesService.updateGame(id, validationResult.value);
+    const updatedGame = await gamesService.updateGame(id, req.body.title);
 
     return res.status(200).json(updatedGame);
 }
