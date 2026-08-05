@@ -11,6 +11,17 @@ model Game {
   id    Int    @id @default(autoincrement())
   title String
   genre String?
+  reviews Review[]
 
   @@map("games")
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  rating  Float
+  comment String?
+  gameId  Int
+  game    Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
 }

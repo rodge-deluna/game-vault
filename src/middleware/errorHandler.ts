@@ -1,5 +1,6 @@
 import type { ErrorRequestHandler } from "express";
 import { GameNotFoundError } from "../errors/GameNotFoundError.js";
+import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
 
 export const errorHandler: ErrorRequestHandler = (
     error,
@@ -7,7 +8,8 @@ export const errorHandler: ErrorRequestHandler = (
     res,
     next
 ) => {
-    if (error instanceof GameNotFoundError) {
+    if (error instanceof GameNotFoundError ||
+        error instanceof ReviewNotFoundError) {
         return res.status(404).json({
             message: error.message
         });
