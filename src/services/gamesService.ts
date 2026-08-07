@@ -86,13 +86,20 @@ export async function getGames({
         },
         _avg: {
             rating: true
+        },
+        where: {
+            gameId: {
+                in: games.map((game) => game.id)
+            }
         }
     });
 
+    const reviewStatsByGameId = new Map(
+        reviewStats.map((stats) => [stats.gameId, stats])
+    );
+
     const gamesWithStats = games.map((game) => {
-        const stats = reviewStats.find(
-            (stats) => stats.gameId === game.id
-        );
+        const stats = reviewStatsByGameId.get(game.id);
 
         return {
             ...game,
