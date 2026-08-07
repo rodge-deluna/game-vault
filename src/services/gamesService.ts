@@ -6,14 +6,37 @@ import type { CreateGameInput, GetGamesQuery } from "../validators/gameValidator
 
 export async function getGameById(id: number) {
     const game = await prisma.game.findUnique({
-        where: { id }
+        where: { id },
+        include: {
+            reviews: true,
+            _count: {
+                select: {
+                    reviews: true
+                }
+            }
+        }
     });
 
     if (!game) {
         throw new GameNotFoundError();
     }
 
-    return game;
+    const ratingStats = await prisma.review.aggregate({
+        where: {
+            gameId: id
+        },
+        _avg: {
+            rating: true
+        }
+    });
+
+    const { _count, ...gameData } = game;
+
+    return {
+        ...gameData,
+        reviewCount: _count.reviews,
+        averageRating: ratingStats._avg.rating
+    };
 }
 
 export async function createGame(data: CreateGameInput) {
@@ -56,8 +79,30 @@ export async function getGames({
         where: query.where
     });
 
+    const reviewStats = await prisma.review.groupBy({
+        by: ["gameId"],
+        _count: {
+            rating: true
+        },
+        _avg: {
+            rating: true
+        }
+    });
+
+    const gamesWithStats = games.map((game) => {
+        const stats = reviewStats.find(
+            (stats) => stats.gameId === game.id
+        );
+
+        return {
+            ...game,
+            reviewCount: stats?._count.rating ?? 0,
+            averageRating: stats?._avg.rating ?? null
+        };
+    });
+
     return {
-        data: games,
+        data: gamesWithStats,
         pagination: {
             page,
             limit,
