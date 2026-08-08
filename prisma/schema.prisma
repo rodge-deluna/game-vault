@@ -17,11 +17,23 @@ model Game {
 }
 
 model Review {
-  id      Int    @id @default(autoincrement())
+  id      Int     @id @default(autoincrement())
   rating  Float
   comment String?
   gameId  Int
-  game    Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId  Int
+  game    Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("reviews")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  email    String   @unique
+  password String
+  reviews  Review[]
+
+  @@map("users")
 }

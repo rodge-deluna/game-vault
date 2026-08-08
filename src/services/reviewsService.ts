@@ -1,5 +1,4 @@
 import prisma from "../db/prisma.js";
-import { GameNotFoundError } from "../errors/GameNotFoundError.js";
 import type { CreateReviewInput } from "../validators/reviewValidator.js";
 import * as gamesService from "../services/gamesService.js";
 import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
