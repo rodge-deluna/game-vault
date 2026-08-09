@@ -5,6 +5,7 @@ import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
 
 export async function createReview(
     gameId: number,
+    userId: number,
     data: CreateReviewInput
 ) {
     await gamesService.getGameById(gameId);
@@ -12,7 +13,8 @@ export async function createReview(
     return prisma.review.create({
         data: {
             ...data,
-            gameId
+            gameId,
+            userId
         }
     });
 }

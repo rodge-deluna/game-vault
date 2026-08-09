@@ -10,7 +10,9 @@ export async function createReview(req: Request, res: Response) {
         });
     }
 
-    const newReview = await reviewsService.createReview(gameId, req.body);
+    const userId = res.locals.userId;
+
+    const newReview = await reviewsService.createReview(gameId, userId, req.body);
 
     return res.status(201).json(newReview);
 }
