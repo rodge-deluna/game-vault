@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { GameNotFoundError } from "../errors/GameNotFoundError.js";
 import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
 import { UserNotFoundError } from "../errors/UserNotFoundError.js";
+import { InvalidCredentialsError } from "../errors/InvalidCredentialsError.js";
 
 export const errorHandler: ErrorRequestHandler = (
     error,
@@ -15,6 +16,12 @@ export const errorHandler: ErrorRequestHandler = (
         error instanceof UserNotFoundError
     ) {
         return res.status(404).json({
+            message: error.message
+        });
+    }
+
+    if (error instanceof InvalidCredentialsError) {
+        return res.status(401).json({
             message: error.message
         });
     }
