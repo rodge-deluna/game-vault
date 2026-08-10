@@ -1,9 +1,9 @@
-import type { LoginInput } from "../validators/loginValidator.js";
-import { InvalidCredentialsError } from "../errors/InvalidCredentialsError.js";
 import bcryptjs from "bcryptjs";
-import prisma from "../db/prisma.js";
-import { removePassword } from "../utils/userUtils.js";
 import jwt from "jsonwebtoken";
+import prisma from "../db/prisma.js";
+import { InvalidCredentialsError } from "../errors/authError.js";
+import { removePassword } from "../utils/userUtils.js";
+import type { LoginInput } from "../validators/loginValidator.js";
 
 
 export async function loginUser(data: LoginInput) {

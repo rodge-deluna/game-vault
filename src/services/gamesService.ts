@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import prisma from "../db/prisma.js";
-import { GameNotFoundError } from "../errors/GameNotFoundError.js";
+import { GameNotFoundError } from "../errors/gameError.js";
 import type { CreateGameInput, GetGamesQuery } from "../validators/gameValidator.js";
 
 

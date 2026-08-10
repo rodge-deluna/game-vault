@@ -1,10 +1,9 @@
 import type { ErrorRequestHandler } from "express";
 import { Prisma } from "@prisma/client";
-import { GameNotFoundError } from "../errors/GameNotFoundError.js";
-import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
-import { UserNotFoundError } from "../errors/UserNotFoundError.js";
-import { InvalidCredentialsError } from "../errors/InvalidCredentialsError.js";
-import { ReviewForbiddenError } from "../errors/ReviewForbiddenError.js";
+import { GameNotFoundError } from "../errors/gameError.js";
+import { ReviewNotFoundError, ReviewForbiddenError, ReviewAlreadyExistsError } from "../errors/reviewError.js";
+import { UserNotFoundError } from "../errors/userError.js";
+import { InvalidCredentialsError } from "../errors/authError.js";
 
 export const errorHandler: ErrorRequestHandler = (
     error,
@@ -31,6 +30,12 @@ export const errorHandler: ErrorRequestHandler = (
         return res.status(403).json({
             message: error.message
         });
+    }
+
+    if(error instanceof ReviewAlreadyExistsError){
+        return res.status(409).json({
+            message: error.message
+        })
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {

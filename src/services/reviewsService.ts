@@ -1,8 +1,8 @@
 import prisma from "../db/prisma.js";
-import type { CreateReviewInput } from "../validators/reviewValidator.js";
+import { Prisma } from "@prisma/client";
+import { ReviewAlreadyExistsError, ReviewForbiddenError, ReviewNotFoundError } from "../errors/reviewError.js";
 import * as gamesService from "../services/gamesService.js";
-import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
-import { ReviewForbiddenError } from "../errors/ReviewForbiddenError.js";
+import type { CreateReviewInput } from "../validators/reviewValidator.js";
 
 export async function createReview(
     gameId: number,
@@ -11,13 +11,23 @@ export async function createReview(
 ) {
     await gamesService.getGameById(gameId);
 
-    return prisma.review.create({
-        data: {
-            ...data,
-            gameId,
-            userId
+    try {
+        return prisma.review.create({
+            data: {
+                ...data,
+                gameId,
+                userId
+            }
+        });
+
+
+    } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+            throw new ReviewAlreadyExistsError();
         }
-    });
+
+        throw err;
+    }
 }
 
 export async function getReviewsByGameId(gameId: number) {

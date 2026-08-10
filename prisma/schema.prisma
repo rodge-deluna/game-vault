@@ -25,6 +25,8 @@ model Review {
   game    Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+
+  @@unique(name: "game_user_unique", [gameId, userId])
   @@map("reviews")
 }
 

@@ -1,8 +1,8 @@
-import prisma from "../db/prisma.js";
-import type { CreateUserInput } from "../validators/userValidator.js";
-import { UserNotFoundError } from "../errors/UserNotFoundError.js";
 import bcryptjs from "bcryptjs";
+import prisma from "../db/prisma.js";
+import { UserNotFoundError } from "../errors/userError.js";
 import { removePassword } from "../utils/userUtils.js";
+import type { CreateUserInput } from "../validators/userValidator.js";
 
 export async function createUser(data: CreateUserInput) {
     const hashedPassword = await bcryptjs.hash(data.password, 10);
