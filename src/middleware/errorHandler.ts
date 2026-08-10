@@ -4,6 +4,7 @@ import { GameNotFoundError } from "../errors/GameNotFoundError.js";
 import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
 import { UserNotFoundError } from "../errors/UserNotFoundError.js";
 import { InvalidCredentialsError } from "../errors/InvalidCredentialsError.js";
+import { ReviewForbiddenError } from "../errors/ReviewForbiddenError.js";
 
 export const errorHandler: ErrorRequestHandler = (
     error,
@@ -22,6 +23,12 @@ export const errorHandler: ErrorRequestHandler = (
 
     if (error instanceof InvalidCredentialsError) {
         return res.status(401).json({
+            message: error.message
+        });
+    }
+
+    if(error instanceof ReviewForbiddenError) {
+        return res.status(403).json({
             message: error.message
         });
     }

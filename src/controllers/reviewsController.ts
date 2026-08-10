@@ -38,6 +38,7 @@ export async function getReviewById(req: Request, res: Response) {
         });
     }
 
+
     const review = await reviewsService.getReviewById(reviewId);
 
     return res.status(200).json(review);
@@ -52,8 +53,11 @@ export async function updateReview(req: Request, res: Response) {
         });
     }
 
+    const userId = res.locals.userId;
+
     const updatedReview = await reviewsService.updateReview(
         reviewId,
+        userId,
         req.body
     );
 
@@ -69,7 +73,9 @@ export async function deleteReview(req: Request, res: Response) {
         });
     }
 
-    await reviewsService.deleteReview(reviewId);
+    const userId = res.locals.userId;
+
+    await reviewsService.deleteReview(reviewId, userId);
 
     return res.status(204).send();
 }

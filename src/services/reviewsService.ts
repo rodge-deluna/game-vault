@@ -2,6 +2,7 @@ import prisma from "../db/prisma.js";
 import type { CreateReviewInput } from "../validators/reviewValidator.js";
 import * as gamesService from "../services/gamesService.js";
 import { ReviewNotFoundError } from "../errors/ReviewNotFoundError.js";
+import { ReviewForbiddenError } from "../errors/ReviewForbiddenError.js";
 
 export async function createReview(
     gameId: number,
@@ -39,8 +40,12 @@ export async function getReviewById(reviewId: number) {
     return review;
 }
 
-export async function updateReview(reviewId: number, data: CreateReviewInput) {
-    await getReviewById(reviewId);
+export async function updateReview(reviewId: number, userId: number, data: CreateReviewInput) {
+    const review = await getReviewById(reviewId);
+
+    if (review.userId !== userId) {
+        throw new ReviewForbiddenError();
+    }
 
     return prisma.review.update({
         where: { id: reviewId },
@@ -48,8 +53,12 @@ export async function updateReview(reviewId: number, data: CreateReviewInput) {
     });
 }
 
-export async function deleteReview(reviewId: number) {
-    await getReviewById(reviewId);
+export async function deleteReview(reviewId: number, userId: number) {
+    const review = await getReviewById(reviewId);
+
+    if (review.userId !== userId) {
+        throw new ReviewForbiddenError();
+    }
 
     return prisma.review.delete({
         where: { id: reviewId }
