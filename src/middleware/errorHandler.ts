@@ -4,6 +4,7 @@ import { GameNotFoundError } from "../errors/gameError.js";
 import { ReviewNotFoundError, ReviewForbiddenError, ReviewAlreadyExistsError } from "../errors/reviewError.js";
 import { UserNotFoundError } from "../errors/userError.js";
 import { InvalidCredentialsError } from "../errors/authError.js";
+import { BacklogAlreadyExistsError } from "../errors/backlogError.js";
 
 export const errorHandler: ErrorRequestHandler = (
     error,
@@ -26,13 +27,19 @@ export const errorHandler: ErrorRequestHandler = (
         });
     }
 
-    if(error instanceof ReviewForbiddenError) {
+    if (error instanceof ReviewForbiddenError) {
         return res.status(403).json({
             message: error.message
         });
     }
 
-    if(error instanceof ReviewAlreadyExistsError){
+    if (error instanceof ReviewAlreadyExistsError) {
+        return res.status(409).json({
+            message: error.message
+        })
+    }
+
+    if (error instanceof BacklogAlreadyExistsError) {
         return res.status(409).json({
             message: error.message
         })

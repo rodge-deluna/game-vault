@@ -12,7 +12,7 @@ export async function createReview(
     await gamesService.getGameById(gameId);
 
     try {
-        return prisma.review.create({
+        return await prisma.review.create({
             data: {
                 ...data,
                 gameId,
