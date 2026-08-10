@@ -35,6 +35,17 @@ export async function getUsers() {
     return users.map(removePassword);
 }
 
+export async function getMyReviews(userId: number) {
+    return prisma.review.findMany({
+        where: {
+            userId
+        },
+        include: {
+            game: true
+        }
+    })
+}
+
 export async function updateUser(userId: number, data: CreateUserInput) {
     await getUserById(userId);
 

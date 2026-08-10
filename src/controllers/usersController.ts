@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import * as usersService from "../services/usersService.js";
 
-export async function getUsers(req: Request, res: Response) {
-    const users = await usersService.getUsers();
+export async function createUser(req: Request, res: Response) {
+    const newUser = await usersService.createUser(req.body);
 
-    return res.status(200).json(users);
+    return res.status(201).json(newUser);
 }
 
 export async function getUserById(req: Request, res: Response) {
@@ -20,10 +20,18 @@ export async function getUserById(req: Request, res: Response) {
     return res.status(200).json(user);
 }
 
-export async function createUser(req: Request, res: Response) {
-    const newUser = await usersService.createUser(req.body);
+export async function getUsers(req: Request, res: Response) {
+    const users = await usersService.getUsers();
 
-    return res.status(201).json(newUser);
+    return res.status(200).json(users);
+}
+
+export async function getMyReviews(req: Request, res: Response) {
+    const userId = res.locals.userId;
+
+    const reviews = await usersService.getMyReviews(userId);
+
+    return res.status(200).json(reviews);
 }
 
 export async function updateUser(req: Request, res: Response) {
