@@ -48,7 +48,15 @@ model Backlog {
   gameId Int
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  status Status @default(WISHLIST)
 
   @@unique(name: "backlog_user_unique", [gameId, userId])
   @@map("backlogs")
+}
+
+enum Status {
+  WISHLIST
+  PLAYING
+  COMPLETED
+  DROPPED
 }

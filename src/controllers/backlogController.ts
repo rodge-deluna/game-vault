@@ -40,3 +40,19 @@ export async function deleteBacklog(req: Request, res: Response) {
 
     return res.status(204).send();
 }
+
+export async function updateBacklogStatus(req: Request, res: Response) {
+    const gameId = Number(req.params.gameId);
+
+    if (Number.isNaN(gameId)) {
+        return res.status(400).json({
+            message: "Invalid game ID"
+        });
+    }
+
+    const userId = res.locals.userId;
+
+    const updatedBacklog = await backlogService.updateBacklogStatus(gameId, userId, req.body);
+
+    return res.status(200).json(updatedBacklog);
+}

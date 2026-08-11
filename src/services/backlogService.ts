@@ -1,5 +1,6 @@
 import prisma from "../db/prisma.js";
 import { BacklogAlreadyExistsError, BacklogNotFoundError } from "../errors/backlogError.js";
+import type { StatusInput } from "../validators/statusValidator.js";
 import { getGameById } from "./gamesService.js";
 import { Prisma } from "@prisma/client";
 
@@ -42,6 +43,25 @@ export async function deleteBacklog(gameId: number, userId: number) {
                     userId
                 }
             }
+        })
+    } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+            throw new BacklogNotFoundError()
+        }
+        throw err;
+    }
+}
+
+export async function updateBacklogStatus(gameId: number, userId: number, data: StatusInput) {
+    try {
+        return await prisma.backlog.update({
+            where: {
+                backlog_user_unique: {
+                    gameId,
+                    userId
+                }
+            },
+            data
         })
     } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
