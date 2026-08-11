@@ -35,27 +35,17 @@ export async function getMyReviews(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
-    const id = Number(req.params.userId);
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid user ID"
-        });
-    }
+    const userId = res.locals.userId;
 
-    const user = await usersService.updateUser(id, req.body);
+    const user = await usersService.updateUser(userId, req.body);
 
     return res.status(200).json(user);
 }
 
 export async function deleteUser(req: Request, res: Response) {
-    const id = Number(req.params.userId);
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid user ID"
-        });
-    }
+    const userId = res.locals.userId;
 
-    await usersService.deleteUser(id);
+    await usersService.deleteUser(userId);
 
     return res.status(204).send();
 }

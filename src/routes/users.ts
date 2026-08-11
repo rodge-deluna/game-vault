@@ -8,14 +8,14 @@ const router = Router();
 
 router.get("/", getUsers);
 
-router.get("/:userId", getUserById);
-
 router.get("/me/reviews", authenticate, getMyReviews)
 
 router.post("/", validateBody(createUserSchema), createUser);
 
-router.put("/:userId", validateBody(createUserSchema), updateUser);
+router.get("/:userId", getUserById);
 
-router.delete("/:userId", deleteUser);
+router.put("/:userId", authenticate, validateBody(createUserSchema), updateUser);
+
+router.delete("/:userId", authenticate, deleteUser);
 
 export default router;
