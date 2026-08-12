@@ -5,6 +5,7 @@ import {
     validateBody,
     validateQuery
 } from "../middleware/validate.js";
+import { authenticate } from "../middleware/authenticate.js";
 
 const router = Router();
 
@@ -12,10 +13,10 @@ router.get("/", validateQuery(getGamesQuerySchema), getGames);
 
 router.get("/:id", getGameById);
 
-router.post("/", validateBody(createGameSchema), createGame);
+router.post("/", authenticate, validateBody(createGameSchema), createGame);
 
-router.put("/:id", validateBody(createGameSchema), updateGame);
+router.put("/:id", authenticate, validateBody(createGameSchema), updateGame);
 
-router.delete("/:id", deleteGame);
+router.delete("/:id", authenticate, deleteGame);
 
 export default router;
