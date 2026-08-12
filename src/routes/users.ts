@@ -14,8 +14,8 @@ router.post("/", validateBody(createUserSchema), createUser);
 
 router.get("/:userId", getUserById);
 
-router.put("/:userId", authenticate, validateBody(createUserSchema), updateUser);
+router.put("/me", authenticate, validateBody(createUserSchema), updateUser);
 
-router.delete("/:userId", authenticate, deleteUser);
+router.delete("/me", authenticate, deleteUser);
 
 export default router;
