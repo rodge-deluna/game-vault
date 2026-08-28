@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authenticate } from "../middleware/authenticate.js";
 import { getMyBacklogs } from "../controllers/backlogController.js";
+import { authenticate } from "../middleware/authenticate.js";
 
 const router = Router();
 

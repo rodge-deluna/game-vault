@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { createReview, getReviewsByGameId } from "../controllers/reviewsController.js";
-import { createReviewSchema } from "../validators/reviewValidator.js";
-import { validateBody } from "../middleware/validate.js";
 import { authenticate } from "../middleware/authenticate.js";
+import { validateBody } from "../middleware/validate.js";
+import { createReviewSchema } from "../validators/reviewValidator.js";
 
 
 const router = Router();
