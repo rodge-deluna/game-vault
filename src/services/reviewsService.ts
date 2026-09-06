@@ -1,7 +1,7 @@
 import prisma from "../db/prisma.js";
 import { Prisma } from "@prisma/client";
 import { ReviewAlreadyExistsError, ReviewForbiddenError, ReviewNotFoundError } from "../errors/reviewError.js";
-import * as gamesService from "../services/gamesService.js";
+import { ensureGameExists } from "./gamesService.js";
 import type { CreateReviewInput } from "../validators/reviewValidator.js";
 
 export async function createReview(
@@ -9,7 +9,7 @@ export async function createReview(
     userId: number,
     data: CreateReviewInput
 ) {
-    await gamesService.getGameById(gameId);
+    await ensureGameExists(gameId);
 
     try {
         return await prisma.review.create({
@@ -31,7 +31,7 @@ export async function createReview(
 }
 
 export async function getReviewsByGameId(gameId: number) {
-    await gamesService.getGameById(gameId);
+    await ensureGameExists(gameId);
 
     return prisma.review.findMany({
         where: { gameId }

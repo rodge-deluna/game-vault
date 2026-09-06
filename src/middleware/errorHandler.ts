@@ -1,10 +1,18 @@
 import type { ErrorRequestHandler } from "express";
 import { Prisma } from "@prisma/client";
+
 import { GameNotFoundError } from "../errors/gameError.js";
-import { ReviewNotFoundError, ReviewForbiddenError, ReviewAlreadyExistsError } from "../errors/reviewError.js";
+import {
+    ReviewNotFoundError,
+    ReviewForbiddenError,
+    ReviewAlreadyExistsError
+} from "../errors/reviewError.js";
 import { UserNotFoundError } from "../errors/userError.js";
 import { InvalidCredentialsError } from "../errors/authError.js";
-import { BacklogAlreadyExistsError, BacklogNotFoundError } from "../errors/backlogError.js";
+import {
+    BacklogAlreadyExistsError,
+    BacklogNotFoundError
+} from "../errors/backlogError.js";
 
 export const errorHandler: ErrorRequestHandler = (
     error,
@@ -12,9 +20,11 @@ export const errorHandler: ErrorRequestHandler = (
     res,
     next
 ) => {
-    if (error instanceof GameNotFoundError ||
+    if (
+        error instanceof GameNotFoundError ||
         error instanceof ReviewNotFoundError ||
-        error instanceof UserNotFoundError
+        error instanceof UserNotFoundError ||
+        error instanceof BacklogNotFoundError
     ) {
         return res.status(404).json({
             message: error.message
@@ -33,25 +43,19 @@ export const errorHandler: ErrorRequestHandler = (
         });
     }
 
-    if (error instanceof ReviewAlreadyExistsError) {
+    if (
+        error instanceof ReviewAlreadyExistsError ||
+        error instanceof BacklogAlreadyExistsError
+    ) {
         return res.status(409).json({
             message: error.message
-        })
+        });
     }
 
-    if (error instanceof BacklogAlreadyExistsError) {
-        return res.status(409).json({
-            message: error.message
-        })
-    }
-
-    if (error instanceof BacklogNotFoundError) {
-        return res.status(404).json({
-            message: error.message
-        })
-    }
-
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+    ) {
         return res.status(409).json({
             message: "Unique constraint failed"
         });

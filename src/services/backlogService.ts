@@ -1,11 +1,11 @@
 import prisma from "../db/prisma.js";
 import { BacklogAlreadyExistsError, BacklogNotFoundError } from "../errors/backlogError.js";
 import type { StatusInput } from "../validators/statusValidator.js";
-import { getGameById } from "./gamesService.js";
+import { ensureGameExists  } from "./gamesService.js";
 import { Prisma } from "@prisma/client";
 
 export async function addToBacklog(gameId: number, userId: number) {
-    await getGameById(gameId);
+    await ensureGameExists(gameId);
 
     try {
         return await prisma.backlog.create({
@@ -61,7 +61,9 @@ export async function updateBacklogStatus(gameId: number, userId: number, data: 
                     userId
                 }
             },
-            data
+            data: {
+                status: data.status
+            }
         })
     } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {

@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "../db/prisma.js";
 import { GameNotFoundError } from "../errors/gameError.js";
 import type { CreateGameInput, GetGamesQuery } from "../validators/gameValidator.js";
@@ -8,7 +8,6 @@ export async function getGameById(id: number) {
     const game = await prisma.game.findUnique({
         where: { id },
         include: {
-            reviews: true,
             _count: {
                 select: {
                     reviews: true
@@ -120,20 +119,49 @@ export async function getGames({
 }
 
 export async function updateGame(id: number, data: CreateGameInput) {
-    await getGameById(id);
+    try {
+        return await prisma.game.update({
+            where: { id },
+            data
+        });
+    } catch (err) {
+        if (
+            err instanceof Prisma.PrismaClientKnownRequestError &&
+            err.code === "P2025"
+        ) {
+            throw new GameNotFoundError();
+        }
 
-    return prisma.game.update({
-        where: { id },
-        data
-    });
+        throw err;
+    }
 }
 
 export async function deleteGame(id: number) {
-    await getGameById(id);
+    try {
+        return await prisma.game.delete({
+            where: { id }
+        });
+    } catch (err) {
+        if (
+            err instanceof Prisma.PrismaClientKnownRequestError &&
+            err.code === "P2025"
+        ) {
+            throw new GameNotFoundError();
+        }
 
-    return prisma.game.delete({
-        where: {
-            id
+        throw err;
+    }
+}
+
+export async function ensureGameExists(id: number) {
+    const game = await prisma.game.findUnique({
+        where: { id },
+        select: {
+            id: true
         }
     });
+
+    if (!game) {
+        throw new GameNotFoundError();
+    }
 }

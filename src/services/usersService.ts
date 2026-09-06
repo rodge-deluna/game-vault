@@ -43,7 +43,7 @@ export async function getMyReviews(userId: number) {
         include: {
             game: true
         }
-    })
+    });
 }
 
 export async function updateUser(userId: number, data: CreateUserInput) {
