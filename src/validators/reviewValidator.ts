@@ -13,4 +13,12 @@ export const createReviewSchema = z.object({
     comment: z.string().trim().min(1, "Comment cannot be empty").optional(),
 });
 
+export const reviewIdParamSchema = z.object({
+    reviewId: z.coerce
+        .number()
+        .int()
+        .positive("Invalid review ID")
+});
+
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;
+export type ReviewIdParams = z.infer<typeof reviewIdParamSchema>;

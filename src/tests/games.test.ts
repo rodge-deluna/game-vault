@@ -178,6 +178,24 @@ describe("GET /games/:id", () => {
 
         expect(response.status).toBe(400);
     });
+
+    it("returns 400 for a zero game ID", async () => {
+        const response = await request(app).get("/games/0");
+
+        expect(response.status).toBe(400);
+    });
+
+    it("returns 400 for a negative game ID", async () => {
+        const response = await request(app).get("/games/-1");
+
+        expect(response.status).toBe(400);
+    });
+
+    it("returns 400 for a decimal game ID", async () => {
+        const response = await request(app).get("/games/1.5");
+
+        expect(response.status).toBe(400);
+    });
 });
 
 describe("POST /games", () => {

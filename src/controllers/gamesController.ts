@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as gamesService from "../services/gamesService.js";
-import type { GetGamesQuery } from "../validators/gameValidator.js";
+import type { GetGamesQuery, GameIdParams } from "../validators/gameValidator.js";
 
 export async function getGames(req: Request, res: Response) {
     const query = res.locals.validatedQuery as GetGamesQuery;
@@ -11,12 +11,7 @@ export async function getGames(req: Request, res: Response) {
 }
 
 export async function getGameById(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+    const { id } = res.locals.validatedParams as GameIdParams;
 
     const game = await gamesService.getGameById(id);
 
@@ -30,13 +25,7 @@ export async function createGame(req: Request, res: Response) {
 }
 
 export async function updateGame(req: Request, res: Response) {
-    const id = Number(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+    const { id } = res.locals.validatedParams as GameIdParams;
 
     const updatedGame = await gamesService.updateGame(id, req.body);
 
@@ -44,13 +33,7 @@ export async function updateGame(req: Request, res: Response) {
 }
 
 export async function deleteGame(req: Request, res: Response) {
-    const id = Number(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+    const { id } = res.locals.validatedParams as GameIdParams;
 
     await gamesService.deleteGame(id);
 

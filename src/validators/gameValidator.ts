@@ -24,5 +24,21 @@ export const getGamesQuerySchema = z
         }
     );
 
+export const gameIdParamSchema = z.object({
+    id: z.coerce
+        .number()
+        .int()
+        .positive("Invalid game ID")
+});
+
+export const gameIdNamedParamSchema = z.object({
+    gameId: z.coerce
+        .number()
+        .int()
+        .positive("Invalid game ID")
+});
+
 export type CreateGameInput = z.infer<typeof createGameSchema>;
 export type GetGamesQuery = z.infer<typeof getGamesQuerySchema>;
+export type GameIdParams = z.infer<typeof gameIdParamSchema>;
+export type GameIdNamedParams = z.infer<typeof gameIdNamedParamSchema>;

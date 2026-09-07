@@ -1,29 +1,29 @@
 import type { Request, Response } from "express";
 import * as reviewsService from "../services/reviewsService.js";
-
+import type { GameIdNamedParams } from "../validators/gameValidator.js";
+import type { ReviewIdParams } from "../validators/reviewValidator.js";
 
 export async function createReview(req: Request, res: Response) {
-    const gameId = Number(req.params.gameId);
-    if (Number.isNaN(gameId)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+    const { gameId } =
+        res.locals.validatedParams as GameIdNamedParams;
 
     const userId = res.locals.userId;
 
-    const newReview = await reviewsService.createReview(gameId, userId, req.body);
+    const newReview = await reviewsService.createReview(
+        gameId,
+        userId,
+        req.body
+    );
 
     return res.status(201).json(newReview);
 }
 
-export async function getReviewsByGameId(req: Request, res: Response) {
-    const gameId = Number(req.params.gameId);
-    if (Number.isNaN(gameId)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+export async function getReviewsByGameId(
+    req: Request,
+    res: Response
+) {
+    const { gameId } =
+        res.locals.validatedParams as GameIdNamedParams;
 
     const reviews = await reviewsService.getReviewsByGameId(gameId);
 
@@ -31,13 +31,8 @@ export async function getReviewsByGameId(req: Request, res: Response) {
 }
 
 export async function getReviewById(req: Request, res: Response) {
-    const reviewId = Number(req.params.reviewId);
-    if (Number.isNaN(reviewId)) {
-        return res.status(400).json({
-            message: "Invalid review ID"
-        });
-    }
-
+    const { reviewId } =
+        res.locals.validatedParams as ReviewIdParams;
 
     const review = await reviewsService.getReviewById(reviewId);
 
@@ -45,13 +40,8 @@ export async function getReviewById(req: Request, res: Response) {
 }
 
 export async function updateReview(req: Request, res: Response) {
-    const reviewId = Number(req.params.reviewId);
-
-    if (Number.isNaN(reviewId)) {
-        return res.status(400).json({
-            message: "Invalid review ID"
-        });
-    }
+    const { reviewId } =
+        res.locals.validatedParams as ReviewIdParams;
 
     const userId = res.locals.userId;
 
@@ -65,13 +55,8 @@ export async function updateReview(req: Request, res: Response) {
 }
 
 export async function deleteReview(req: Request, res: Response) {
-    const reviewId = Number(req.params.reviewId);
-
-    if (Number.isNaN(reviewId)) {
-        return res.status(400).json({
-            message: "Invalid review ID"
-        });
-    }
+    const { reviewId } =
+        res.locals.validatedParams as ReviewIdParams;
 
     const userId = res.locals.userId;
 
