@@ -6,4 +6,12 @@ export const createUserSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
+export const userIdParamSchema = z.object({
+    userId: z.coerce
+        .number()
+        .int()
+        .positive("Invalid user ID")
+});
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type UserIdParams = z.infer<typeof userIdParamSchema>;

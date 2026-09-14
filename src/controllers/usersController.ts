@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import * as usersService from "../services/usersService.js";
+import type { UserIdParams } from "../validators/userValidator.js";
 
 export async function createUser(req: Request, res: Response) {
     const newUser = await usersService.createUser(req.body);
@@ -8,14 +9,10 @@ export async function createUser(req: Request, res: Response) {
 }
 
 export async function getUserById(req: Request, res: Response) {
-    const id = Number(req.params.userId);
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid user ID"
-        });
-    }
+    const { userId } =
+        res.locals.validatedParams as UserIdParams;
 
-    const user = await usersService.getUserById(id);
+    const user = await usersService.getUserById(userId);
 
     return res.status(200).json(user);
 }

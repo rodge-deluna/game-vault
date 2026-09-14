@@ -1,14 +1,10 @@
 import type { Request, Response } from "express";
 import * as backlogService from "../services/backlogService.js";
+import type { GameIdNamedParams } from "../validators/gameValidator.js";
 
 export async function createBacklog(req: Request, res: Response) {
-    const gameId = Number(req.params.gameId);
-
-    if (Number.isNaN(gameId)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+    const { gameId } =
+        res.locals.validatedParams as GameIdNamedParams;
 
     const userId = res.locals.userId;
 
@@ -26,13 +22,8 @@ export async function getMyBacklogs(req: Request, res: Response) {
 }
 
 export async function deleteBacklog(req: Request, res: Response) {
-    const gameId = Number(req.params.gameId);
-
-    if (Number.isNaN(gameId)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+    const { gameId } =
+        res.locals.validatedParams as GameIdNamedParams;
 
     const userId = res.locals.userId;
 
@@ -41,18 +32,21 @@ export async function deleteBacklog(req: Request, res: Response) {
     return res.status(204).send();
 }
 
-export async function updateBacklogStatus(req: Request, res: Response) {
-    const gameId = Number(req.params.gameId);
-
-    if (Number.isNaN(gameId)) {
-        return res.status(400).json({
-            message: "Invalid game ID"
-        });
-    }
+export async function updateBacklogStatus(
+    req: Request,
+    res: Response
+) {
+    const { gameId } =
+        res.locals.validatedParams as GameIdNamedParams;
 
     const userId = res.locals.userId;
 
-    const updatedBacklog = await backlogService.updateBacklogStatus(gameId, userId, req.body);
+    const updatedBacklog =
+        await backlogService.updateBacklogStatus(
+            gameId,
+            userId,
+            req.body
+        );
 
     return res.status(200).json(updatedBacklog);
 }
