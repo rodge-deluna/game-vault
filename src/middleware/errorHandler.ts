@@ -1,7 +1,10 @@
 import type { ErrorRequestHandler } from "express";
 import { Prisma } from "@prisma/client";
 
-import { GameNotFoundError } from "../errors/gameError.js";
+import {
+    GameAlreadyExistsError,
+    GameNotFoundError
+} from "../errors/gameError.js";
 import {
     ReviewNotFoundError,
     ReviewForbiddenError,
@@ -45,7 +48,8 @@ export const errorHandler: ErrorRequestHandler = (
 
     if (
         error instanceof ReviewAlreadyExistsError ||
-        error instanceof BacklogAlreadyExistsError
+        error instanceof BacklogAlreadyExistsError ||
+        error instanceof GameAlreadyExistsError
     ) {
         return res.status(409).json({
             message: error.message

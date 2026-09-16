@@ -1,8 +1,11 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../db/prisma.js";
-import { GameNotFoundError } from "../errors/gameError.js";
+import {
+    GameAlreadyExistsError,
+    GameNotFoundError
+} from "../errors/gameError.js";
 import type { CreateGameInput, GetGamesQuery } from "../validators/gameValidator.js";
-
+import * as rawgService from "./rawgService.js";
 
 export async function getGameById(id: number) {
     const game = await prisma.game.findUnique({
@@ -163,5 +166,32 @@ export async function ensureGameExists(id: number) {
 
     if (!game) {
         throw new GameNotFoundError();
+    }
+}
+
+export async function importGame(externalId: number) {
+    const externalGame = await rawgService.getGameById(externalId);
+
+    try {
+        return await prisma.game.create({
+            data: {
+                externalId: externalGame.externalId,
+                title: externalGame.title,
+                genre: externalGame.genre,
+                releaseDate: externalGame.releaseDate
+                    ? new Date(externalGame.releaseDate)
+                    : null,
+                backgroundImage: externalGame.backgroundImage
+            }
+        });
+    } catch (err) {
+        if (
+            err instanceof Prisma.PrismaClientKnownRequestError &&
+            err.code === "P2002"
+        ) {
+            throw new GameAlreadyExistsError();
+        }
+
+        throw err;
     }
 }

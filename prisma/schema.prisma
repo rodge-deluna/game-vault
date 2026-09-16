@@ -8,11 +8,14 @@ datasource db {
 }
 
 model Game {
-  id    Int    @id @default(autoincrement())
-  title String
-  genre String?
-  reviews Review[]
-  backlogs Backlog[]
+  id              Int       @id @default(autoincrement())
+  externalId      Int?      @unique
+  title           String
+  genre           String?
+  releaseDate     DateTime?
+  backgroundImage String?
+  reviews         Review[]
+  backlogs        Backlog[]
 
   @@map("games")
 }

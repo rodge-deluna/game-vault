@@ -8,6 +8,7 @@ import gamesBacklogRouter from "./routes/gamesBacklog.js";
 import reviewsRouter from "./routes/reviews.js";
 import usersRouter from "./routes/users.js";
 import usersBacklogRouter from "./routes/usersBacklog.js";
+import externalGamesRouter from "./routes/externalGames.js"
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use("/users", usersRouter);
 app.use("/users/me", usersBacklogRouter);
 
 app.use("/reviews", reviewsRouter);
+
+app.use("/external-games", externalGamesRouter);
 
 app.get("/about", (req, res) => {
     res.send("This is my GameVault API.");
