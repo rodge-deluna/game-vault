@@ -1,32 +1,46 @@
 # GameVault
 
-Full-stack game backlog and review app, built as a portfolio project. The backend is functional; the frontend is not started yet.
+Full-stack game backlog and review app, built as a portfolio project. The backend is functional; the frontend has its essential pages (games list, game detail, auth, backlog, RAWG import) and still needs a styling pass.
+
+## Repository layout
+
+- `server/`: Express API (its own `package.json`, `.env`, `.env.test`, Prisma schema, tests)
+- `client/`: React + Vite + TypeScript + Tailwind frontend. In dev, Vite proxies `/api/*` to the API on port 3000 (stripping `/api`).
+
+Run commands from the matching folder.
 
 The goal is to finish GameVault as a polished, deployable project while I learn software engineering and agentic coding. Prefer shipping working features over endlessly refining existing code.
 
 ## Stack
 
-- Node.js, Express 5, TypeScript (ESM, `"type": "module"`, imports use `.js` extensions)
+- Server: Node.js, Express 5, TypeScript (ESM, `"type": "module"`, imports use `.js` extensions)
 - PostgreSQL with Prisma
 - Zod for request validation, JWT + bcrypt for auth
 - Vitest + Supertest for integration tests
 - RAWG API for external game data
+- Client: React 19, Vite, React Router, Tailwind CSS v4
 
 ## Commands
 
 ```sh
-npm run dev                 # start with watch (tsx)
-npm test                    # run Vitest (uses .env.test)
-npx tsc --noEmit            # typecheck (see known issue below)
-npx prisma migrate dev      # create/apply a migration
+# in server/
+npm run dev                 # start API with watch (tsx), port 3000
+npm test                    # run Vitest (uses .env.test; files run sequentially)
+npx tsc --noEmit            # typecheck
+npx prisma migrate dev      # create/apply a migration (dev DB)
 npx prisma generate         # regenerate the client after schema changes
+
+# in client/
+npm run dev                 # start Vite, http://localhost:5173
+npm run build               # typecheck + production build
+npm run lint                # oxlint
 ```
 
-Environment: `.env` (dev) and `.env.test` (tests) each define `DATABASE_URL`, `JWT_SECRET`, `RAWG_API_KEY`. Never print or commit their values.
+Environment: `server/.env` (dev) and `server/.env.test` (tests) each define `DATABASE_URL`, `JWT_SECRET`, `RAWG_API_KEY`. Never print or commit their values. After adding a migration, also apply it to the test DB (`prisma migrate deploy` with the test `DATABASE_URL`), or tests fail with missing-column errors.
 
-## Architecture
+## Server architecture
 
-`routes/` → `controllers/` → `services/` → Prisma (`db/prisma.ts`) → PostgreSQL
+`routes/` → `controllers/` → `services/` → Prisma (`db/prisma.ts`) → PostgreSQL (all under `server/src/`)
 
 - `middleware/`: `validate.ts` (Zod), `authenticate.ts` (JWT), `errorHandler.ts` (maps domain errors to status codes)
 - `errors/`: domain error classes per resource; throw these from services, register new ones in `errorHandler.ts`
@@ -79,6 +93,6 @@ Status, roadmap, decisions, and learning notes live in my Obsidian vault at `C:\
 
 ## Known issues
 
-- `npx tsc --noEmit` reports TS6059 because `vitest.config.ts` is outside `rootDir: ./src`. The source itself typechecks cleanly; fix the tsconfig (e.g. add `"include": ["src"]`) when convenient.
+- `GET /games/:id/reviews` returns `userId` but not the username, so the client shows "Player #id" for other users' reviews.
 - `importGame` with a nonexistent RAWG ID returns 500 instead of 404 (`rawgService.getGameById` throws a generic `Error`).
 - The RAWG import endpoint has no tests yet.

@@ -6,7 +6,10 @@ export default defineConfig(({ mode }) => {
 
     return {
         test: {
-            env
+            env,
+            // All test files share one database and clean it with deleteMany(),
+            // so running them in parallel lets one file wipe another's data.
+            fileParallelism: false
         }
     };
 });
