@@ -9,11 +9,12 @@ type RawgGame = {
     genres: {
         name: string;
     }[];
+    // RAWG returns null instead of [] for some user-submitted games
     platforms: {
         platform: {
             name: string;
         };
-    }[];
+    }[] | null;
 };
 
 type RawgSearchResponse = {
@@ -57,7 +58,7 @@ export async function searchGames(search: string) {
         backgroundImage: game.background_image,
         rating: game.rating,
         genres: game.genres.map((genre) => genre.name),
-        platforms: game.platforms.map(
+        platforms: (game.platforms ?? []).map(
             ({ platform }) => platform.name
         )
     }));

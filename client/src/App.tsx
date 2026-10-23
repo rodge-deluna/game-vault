@@ -1,25 +1,43 @@
-import { useEffect, useState } from 'react'
+import { Route, Routes } from 'react-router'
+import Navbar from './components/Navbar'
+import RequireAuth from './components/RequireAuth'
+import BacklogPage from './pages/BacklogPage'
+import GameDetailPage from './pages/GameDetailPage'
+import GamesList from './pages/GamesList'
+import ImportPage from './pages/ImportPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 
-// Temporary smoke test: confirms the Vite proxy reaches the Express API.
-// Replaced by the real games list page in the next step.
 function App() {
-  const [status, setStatus] = useState('Connecting to API...')
-
-  useEffect(() => {
-    fetch('/api/games')
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
-      })
-      .then(() => setStatus('Connected to GameVault API'))
-      .catch((err: Error) => setStatus(`API error: ${err.message}`))
-  }, [])
-
   return (
-    <main>
-      <h1>GameVault</h1>
-      <p>{status}</p>
-    </main>
+    <div className="min-h-screen bg-gray-950 text-gray-100">
+      <Navbar />
+      <main className="mx-auto max-w-3xl px-4 py-8">
+        <Routes>
+          <Route path="/" element={<GamesList />} />
+          <Route path="/games/:id" element={<GameDetailPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/backlog"
+            element={
+              <RequireAuth>
+                <BacklogPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/import"
+            element={
+              <RequireAuth>
+                <ImportPage />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<p className="text-gray-400">Page not found.</p>} />
+        </Routes>
+      </main>
+    </div>
   )
 }
 
